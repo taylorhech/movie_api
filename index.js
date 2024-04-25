@@ -1,5 +1,5 @@
 const express = require('express');
-morgan = require('morgan');
+const morgan = require('morgan');
 const app = express();
 
 //Logging middleware morgan
