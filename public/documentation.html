@@ -8,9 +8,110 @@
 
 <body>
     <h1>My Flix</h1>
-    <h3>What this API does:</h3>
+    <h2>What this API does:</h2>
     <p>This app will provide users with access to information about different
         movies, directors and genres. Users will be able to sign up, update their
         personal information, and create a list of their favorite movies.</p>
+    
+    <h2>Endpoints</h2>
+    <h3>Movie Endpoints and Methods</h3>
+    <table>
+        <thead>
+            <tr>
+                <th>Request</th>
+                <th>URL</th>
+                <th>HTTP Method</th>
+                <th>Request Body Data Format</th>
+                <th>Response Body Data Format</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>Return a list of all movies</td>
+                <td>/movies</td>
+                <td>GET</td>
+                <td>None</td>
+                <td>A JSON object holding data about all the movies</td>
+            </tr>
+            <tr>
+                <td>Return data about a single movie by title</td>
+                <td>/movies/:title</td>
+                <td>GET</td>
+                <td>None</td>
+                <td>A JSON object holding data about a single movie- description, genre, director</td>
+            </tr>
+            <tr>
+                <td>Return data about a genre by name/title</td>
+                <td>/movies/genre/:genreName</td>
+                <td>GET</td>
+                <td>None</td>
+                <td>A JSON object holding data about a genre</td>
+            </tr>
+            <tr>
+                <td>Return data about a director</td>
+                <td>/movies/directors/:directorName</td>
+                <td>GET</td>
+                <td>None</td>
+                <td>A JSON object holding data about a director: name, biography, birth year, and death year</td>
+            </tr>
+        </tbody>
+    </table>
+    <h3>User Endpoints and Methods</h3>
+    <table>
+        <thead>
+            <tr>
+                <th>Request</th>
+                <th>URL</th>
+                <th>HTTP Method</th>
+                <th>Request Body Data Format</th>
+                <th>Response Body Data Format</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>New user registration</td>
+                <td>/users</td>
+                <td>POST</td>
+                <td>A JSON object holding data about the new user like: 
+                    {
+                        username: "petersmith"
+                    } </td>
+                <td>A JSON object holding data about the new user that was added, including an ID:
+                    {
+                        id: ""
+                        username: "petersmith"
+                    }
+                </td>
+            </tr>
+            <tr>
+                <td>Update a user's username</td>
+                <td>/users/:id</td>
+                <td>PUT</td>
+                <td>None</td>
+                <td>A JSON object holding new data (the new username) about the updated user</td>
+            </tr>
+            <tr>
+                <td>Add a movie to user's list of favortie movies</td>
+                <td>/users/:id/:movieTitle</td>
+                <td>PUT</td>
+                <td>None</td>
+                <td>A text message indicating the new data (new movie) has been added to the user's list</td>
+            </tr>
+            <tr>
+                <td>Delete a movie from the user's list of favorite movies</td>
+                <td>/users/:id/:movieTitle</td>
+                <td>DELETE</td>
+                <td>None</td>
+                <td>A text message indicating the data (movie) has been deleted from the user's list</td>
+            </tr>
+            <tr>
+                <td>Delete an existing user</td>
+                <td>/users/:id</td>
+                <td>DELETE</td>
+                <td>None</td>
+                <td>A text message indicating the user has been deleted</td>
+            </tr>
+        </tbody>
+        </table>   
 </body>
 </html>
