@@ -35,7 +35,7 @@
             </tr>
             <tr>
                 <td>Return data about a single movie by title</td>
-                <td>/movies/:title</td>
+                <td>/movies/:Title</td>
                 <td>GET</td>
                 <td>None</td>
                 <td>A JSON object holding data about a single movie- description, genre, director</td>
@@ -74,39 +74,45 @@
                 <td>POST</td>
                 <td>A JSON object holding data about the new user like: 
                     {
-                        username: "petersmith"
+                        Username: "petersmith",
+                        Password: "passwordexample",
+                        Email: "petersmith@gmail.com",
+                        Birthday: "1999-11-06"
                     } </td>
                 <td>A JSON object holding data about the new user that was added, including an ID:
                     {
                         id: ""
-                        username: "petersmith"
+                        Username: "petersmith",
+                        Password: "passwordexample",
+                        Email: "petersmith@gmail.com",
+                        Birthday: "1999-11-06"
                     }
                 </td>
             </tr>
             <tr>
-                <td>Update a user's username</td>
-                <td>/users/:id</td>
+                <td>Update a user's information</td>
+                <td>/users/:Username</td>
                 <td>PUT</td>
                 <td>None</td>
-                <td>A JSON object holding new data (the new username) about the updated user</td>
+                <td>A JSON object holding new data (the new username, password, email, or birthday) about the updated user</td>
             </tr>
             <tr>
                 <td>Add a movie to user's list of favortie movies</td>
-                <td>/users/:id/:movieTitle</td>
+                <td>/users/:Username/movies/:MovieID</td>
                 <td>PUT</td>
                 <td>None</td>
                 <td>A text message indicating the new data (new movie) has been added to the user's list</td>
             </tr>
             <tr>
                 <td>Delete a movie from the user's list of favorite movies</td>
-                <td>/users/:id/:movieTitle</td>
+                <td>/users/:Username/movies/:MovieID</td>
                 <td>DELETE</td>
                 <td>None</td>
                 <td>A text message indicating the data (movie) has been deleted from the user's list</td>
             </tr>
             <tr>
                 <td>Delete an existing user</td>
-                <td>/users/:id</td>
+                <td>/users/:Username</td>
                 <td>DELETE</td>
                 <td>None</td>
                 <td>A text message indicating the user has been deleted</td>
