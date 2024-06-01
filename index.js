@@ -6,6 +6,21 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(morgan('common')); //Logging middleware morgan
 
+const cors = require('cors');
+const { check, validationResult } = require('express-validator');
+
+let allowedOrigins = ['http://localhost:8080', 'http://testsite.com'];
+
+app.use(cors({
+  origin: (origin, callback) => {
+    if(!origin) return callback(null, true);
+    if(allowedOrigins.indexOf(origin) === -1){ // If a specific origin isn’t found on the list of allowed origins
+      let message = 'The CORS policy for this application doesn\'t allow access from origin ' + origin;
+      return callback(new Error(message ), false);
+    }
+    return callback(null, true);
+  }
+}));
 
 let auth = require('./auth')(app); //Ensures Express is available in auth.js
 const passport = require('passport');
@@ -17,138 +32,6 @@ const Movies = Models.Movie;
 const Users = Models.User;
 mongoose.connect('mongodb://localhost:27017/cfDB');
 
-let movies = [
-    {
-        Title: 'Your Name',
-        Director: {
-            Name: 'Makoto Shinkai',
-            Bio: 'Makoto Niitsu, known as Makoto Shinkai, is a Japanese filmmaker and novelist know for his anime feature films.',
-            Birth: 1973
-        },
-        Genre: {
-            Name: 'Fantasy',
-            Description: 'Fantasy films include fantastic themes, usually magic, supernatural events, mythology, folklore, or exoctic fantasy worlds.'
-        },
-        Year: 2016
-    },
-    {
-        Title: 'Past Lives',
-        Director: {
-            Name: 'Celine Song',
-            Bio: 'Celine Song is a Korean-Canadian director, playwright, and screenwriter, receiving critical acclaim for her directorial film debut of Past Lives.',
-            Birth: 1988
-        },
-        Genre: {
-            Name: 'Drama',
-            Description: 'In film and television, drama is a category narrative fiction (or semi-fiction) intended to be more serious than humurous in tone.'
-        },
-        Year: 2023
-    },
-    {
-        Title: 'Coco',
-        Director: [ 
-            {
-            Name: 'Adrian Molina',
-            Bio: 'Adrian Molina is an American animator, storyboad artist, and screenwriter who works for Pixar.',
-            Birth: 1985
-        }, {
-            Name: 'Lee Unkrich',
-            Bio: 'Lee Edward Unkrich is an American film director, editor, and writer best known for his work with animation studio, Pixar.',
-            Birth: 1967
-        }],  
-        Genre: {
-            Name: 'Fantasy',
-            Description: 'Fantasy films include fantastic themes, usually magic, supernatural events, mythology, folklore, or exoctic fantasy worlds.'
-        },
-        Year: 2017
-    },
-    {
-        Title: 'Ice Age: Dawn of the Dinosaurs',
-        Director: {
-            Name: 'Carlos Saldanha',
-            Bio: 'Carlos Saldanha is a Brazilian animator, director, producer, and voice actor of animated films who worked with Blue Sky Studios until its closer in 2021.',
-            Birth: 1965
-        },
-        Genre: {
-            Name: 'Comedy',
-            Description: 'In film, the comedy category emphasizes humor, is designed to amuse audiences, and make them laugh.'
-        },
-        Year: 2009
-    },
-    {
-        Title: 'Bullet Train',
-        Director: {
-            Name: 'David Leitch',
-            Bio: 'David Leitch is an American filmmaker, stunt performer, stunt coordinator, and actor who made his directorial debut on the 2014 action film John Wick.',
-            Birth: 1975
-        },
-        Genre: {
-            Name: 'Comedy',
-            Description: 'In film, the comedy category emphasizes humor, is designed to amuse audiences, and make them laugh.'
-        },
-        Year: 2022
-    },
-    {
-        Title: 'Spider-Man: Across the Spider-Verse',
-        Director: 'Joaquim Dos Santos, Kemp Powers, Justin K. Thompson',
-        Genre: 'Action',
-        Year: 2023
-    },
-    {
-        Title: 'How to Train Your Dragon',
-        Director: 'Dean DeBlois, Chris Sanders',
-        Genre: {
-            Name: 'Fantasy',
-            Description: 'Fantasy films include fantastic themes, usually magic, supernatural events, mythology, folklore, or exoctic fantasy worlds.'
-        },
-        Year: 2010
-    },
-    {
-        Title: 'Howl\'s Moving Castle',
-        Director: 'Hayao Miyazaki',
-        Genre: {
-            Name: 'Fantasy',
-            Description: 'Fantasy films include fantastic themes, usually magic, supernatural events, mythology, folklore, or exoctic fantasy worlds.'
-        },
-        Year: 2004
-    },
-    {
-        Title: 'Rush Hour',
-        Director: 'Brett Ratner',
-        Genre: {
-            Name: 'Comedy',
-            Description: 'In film, the comedy category emphasizes humor, is designed to amuse audiences, and make them laugh.'
-        },
-        Year: 1998
-    },
-    {
-        Title: 'Coherence',
-        Director: 'James Ward Byrkit',
-        Genre: {
-            Name: 'Sci-fi',
-            Description: 'The science fiction genre uses speculative, fictional science-based depictions of phenomena that are not fully accepted by mainstream science, such as extraterrestrial lifeforms, spacecraft, robots, cyborgs, mutants, interstellar travel, time travel, or other technologies.'
-        },
-        Year: 2013
-    },
-];
-
-let users = [
-    {
-        id: 1,
-        name: 'Jane',
-        favoriteMovies: []
-    },
-    {
-        id: 2,
-        name: 'Samuel',
-        favoriteMovies: []
-    },
-    {
-        id: 3,
-        name: 'Mary',
-        favoriteMovies: []
-    },
-];
 
 //GET requests
 //Welcome route
@@ -157,7 +40,21 @@ app.get('/', (req, res) => {
 });
 
 //CREATE- check if user already exists & new user registration if they don't JSON
-app.post('/users', (req, res) => {
+app.post('/users', 
+[
+    check('Username', 'Username is required').isLength({min: 5}),
+    check('Username', 'Username contains non alpanumeric characters - not allowed.').isAlphanumeric(),
+    check('Password', 'Password is required').not().isEmpty(),
+    check('Email', 'Email does not appear to be valid').isEmail()
+], (req, res) => {
+
+    let errors = validationResult(req);
+
+    if (!errors.isEmpty()) {
+        return res.status(422).json({ errors: errors.array() });
+    }
+
+    let hashedPassword = Users.hashPassword(req.body.Password);
     Users.findOne({ Username: req.body.Username})
     .then((user) => {
         if(user) {
@@ -166,7 +63,7 @@ app.post('/users', (req, res) => {
             Users
             .create({
                 Username: req.body.Username,
-                Password: req.body.Password,
+                Password: hashedPassword,
                 Email: req.body.Email,
                 Birthday: req.body.Birthday
             })
@@ -184,7 +81,13 @@ app.post('/users', (req, res) => {
 });
 
 //UPDATE- allows users to update user info JSON
-app.put('/users/:Username', passport.authenticate('jwt', { session: false }), (req, res) => {
+app.put('/users/:Username',
+[
+    check('Username', 'Username is required').isLength({min: 5}),
+    check('Username', 'Username contains non alpanumeric characters - not allowed.').isAlphanumeric(),
+    check('Password', 'Password is required').not().isEmpty(),
+    check('Email', 'Email does not appear to be valid').isEmail()
+], passport.authenticate('jwt', { session: false }), (req, res) => {
     {
         //CONDITION TO CHECK ADDED HERE
         if(req.user.Username !== req.user.Username){
@@ -334,6 +237,7 @@ app.use((err, req, res, next) => {
 });
 
 //Listens for requests
-app.listen(8080, () => {
-    console.log('This app is listening on port 8080.');
-})
+const port = process.env.PORT || 8080;
+app.listen(port, '0.0.0.0',() => {
+    console.log('Listening on Port ' + port);
+});
