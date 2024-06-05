@@ -1,10 +1,14 @@
 const express = require('express'),
     morgan = require('morgan');
-
 const app = express();
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
-app.use(morgan('common')); //Logging middleware morgan
+
+require('dotenv').config(); //loads environment variables from .env file
+const mongoose = require('mongoose');
+const Models = require('./models.js');
+const Movies = Models.Movie;
+const Users = Models.User;
+mongoose.connect(process.env.CONNECTION_URI);
+// mongoose.connect('mongodb://localhost:27017/cfDB');
 
 const cors = require('cors');
 const { check, validationResult } = require('express-validator');
@@ -22,16 +26,14 @@ app.use(cors({
   }
 }));
 
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+app.use(morgan('common')); //Logging middleware morgan
+
+
 let auth = require('./auth')(app); //Ensures Express is available in auth.js
 const passport = require('passport');
 require('./passport');
-
-const mongoose = require('mongoose');
-const Models = require('./models.js');
-const Movies = Models.Movie;
-const Users = Models.User;
-mongoose.connect( process.env.CONNECTION_URI, { useNewUrlParser: true, useUnifiedTopology: true});
-// mongoose.connect('mongodb://localhost:27017/cfDB');
 
 
 //GET requests
