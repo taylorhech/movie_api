@@ -91,13 +91,20 @@ app.put('/users/:Username',
     check('Password', 'Password is required').not().isEmpty(),
     check('Email', 'Email does not appear to be valid').isEmail()
 ], passport.authenticate('jwt', { session: false }), (req, res) => {
+    
+    //check the validation for errors
+    let errors = validationResult(req);
+    if (!errors.isEmpty()) {
+        return res.status(422).json({ errors: errors.array() });
+    }
+    
     {
-        //CONDITION TO CHECK ADDED HERE
+        //CONDITION TO CHECK USER ADDED HERE
         if(req.user.Username !== req.user.Username){
             return res.status(400).send('Permission denied');
         }
-    }
-    //CONDITION ENDS
+    } //CONDITION ENDS
+
     Users.findOneAndUpdate({ Username: req.params.Username }, { $set:
         {
             Username: req.body.Username,
